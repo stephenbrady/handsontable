@@ -55,50 +55,51 @@ export const KEY_CODES = {
 export function isPrintableChar(keyCode) {
   return ((keyCode == 32) || //space
       (keyCode >= 48 && keyCode <= 57) || //0-9
+      (keyCode >= 65 && keyCode <= 90) || //a-z
       (keyCode >= 96 && keyCode <= 111) || //numpad
       (keyCode >= 186 && keyCode <= 192) || //;=,-./`
       (keyCode >= 219 && keyCode <= 222) || //[]{}\|"'
-      keyCode >= 226 || //special chars (229 for Asian chars)
-      (keyCode >= 65 && keyCode <= 90)); //a-z
+      keyCode >= 226 //special chars (229 for Asian chars)
+      );
 }
+
+const metaKeys = {
+  '8': true,   // BACKSPACE
+  '9': true,   // TAB
+  '13': true,  // ENTER
+  '16': true,  // SHIFT
+  '18': true,  // ALT
+  '20': true,  // CAPS_LOCK
+  '27': true,  // ESCAPE
+  '33': true,  // PAGE_UP
+  '34': true,  // PAGE_DOWN
+  '35': true,  // END
+  '36': true,  // HOME
+  '37': true,  // ARROW_LEFT
+  '38': true,  // ARROW_UP
+  '39': true,  // ARROW_RIGHT
+  '40': true,  // ARROW_DOWN
+  '46': true,  // DELETE
+  '112': true, // F1
+  '113': true, // F2
+  '114': true, // F3
+  '115': true, // F4
+  '116': true, // F5
+  '117': true, // F6
+  '118': true, // F7
+  '119': true, // F8
+  '120': true, // F9
+  '121': true, // F10
+  '122': true, // F11
+  '123': true // F12
+};
 
 /**
  * @param {Number} keyCode
  * @returns {Boolean}
  */
 export function isMetaKey(keyCode) {
-  var metaKeys = [
-    KEY_CODES.ARROW_DOWN,
-    KEY_CODES.ARROW_UP,
-    KEY_CODES.ARROW_LEFT,
-    KEY_CODES.ARROW_RIGHT,
-    KEY_CODES.HOME,
-    KEY_CODES.END,
-    KEY_CODES.DELETE,
-    KEY_CODES.BACKSPACE,
-    KEY_CODES.F1,
-    KEY_CODES.F2,
-    KEY_CODES.F3,
-    KEY_CODES.F4,
-    KEY_CODES.F5,
-    KEY_CODES.F6,
-    KEY_CODES.F7,
-    KEY_CODES.F8,
-    KEY_CODES.F9,
-    KEY_CODES.F10,
-    KEY_CODES.F11,
-    KEY_CODES.F12,
-    KEY_CODES.TAB,
-    KEY_CODES.PAGE_DOWN,
-    KEY_CODES.PAGE_UP,
-    KEY_CODES.ENTER,
-    KEY_CODES.ESCAPE,
-    KEY_CODES.SHIFT,
-    KEY_CODES.CAPS_LOCK,
-    KEY_CODES.ALT
-  ];
-
-  return metaKeys.indexOf(keyCode) !== -1;
+  return !!metaKeys[keyCode];
 }
 
 /**
@@ -106,7 +107,18 @@ export function isMetaKey(keyCode) {
  * @returns {Boolean}
  */
 export function isCtrlKey(keyCode) {
-  return [KEY_CODES.CONTROL_LEFT, 224, KEY_CODES.COMMAND_LEFT, KEY_CODES.COMMAND_RIGHT].indexOf(keyCode) !== -1;
+  switch (keyCode) {
+    // SDB: note that on Windows, 91/93 are the Windows key - address this
+
+    case 17:  // control key (left or right) - KEY_CODES.COMMAND_LEFT
+    case 91:  // macOS command key (left) - KEY_CODES.CONTROL_LEFT
+    case 93:  // macOS command key (right) - KEY_CODES.COMMAND_RIGHT
+    case 224: // macOS command key in Firefox
+      return true;
+
+    default:
+      return false;
+  }
 }
 
 /**
