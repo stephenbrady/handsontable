@@ -123,50 +123,6 @@ class EventManager {
     this.clearEvents();
     this.context = null;
   }
-
-  /**
-   * Trigger event at the specified target element.
-   *
-   * @param {Element} element Target element.
-   * @param {String} eventName Event name.
-   */
-  fireEvent(element, eventName) {
-    let options = {
-      bubbles: true,
-      cancelable: (eventName !== 'mousemove'),
-      view: window,
-      detail: 0,
-      screenX: 0,
-      screenY: 0,
-      clientX: 1,
-      clientY: 1,
-      ctrlKey: false,
-      altKey: false,
-      shiftKey: false,
-      metaKey: false,
-      button: 0,
-      relatedTarget: undefined,
-    };
-    var event;
-
-    if (document.createEvent) {
-      event = document.createEvent('MouseEvents');
-      event.initMouseEvent(eventName, options.bubbles, options.cancelable,
-        options.view, options.detail,
-        options.screenX, options.screenY, options.clientX, options.clientY,
-        options.ctrlKey, options.altKey, options.shiftKey, options.metaKey,
-        options.button, options.relatedTarget || document.body.parentNode);
-
-    } else {
-      event = document.createEventObject();
-    }
-
-    if (element.dispatchEvent) {
-      element.dispatchEvent(event);
-    } else {
-      element.fireEvent('on' + eventName, event);
-    }
-  }
 }
 
 /**

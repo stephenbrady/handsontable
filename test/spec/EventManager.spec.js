@@ -1,3 +1,5 @@
+// SDB: Fix these tests to remove fireEvent - perhaps remove all tests?
+
 describe('EventManager', function () {
   it('should add/remove/clear event for multiple instances', function () {
     var instance = {
