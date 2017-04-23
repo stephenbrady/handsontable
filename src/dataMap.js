@@ -6,7 +6,6 @@ import {createObjectPropListener, duckSchema, deepExtend, deepClone, isObject, d
 import {extendArray, to2dArray} from './helpers/array';
 import {Interval} from './utils/interval';
 import {rangeEach} from './helpers/number';
-import {MultiMap} from './multiMap';
 
 /**
  * Utility class that gets and saves data from/to the data source using mapping of columns numbers to object property names
@@ -92,7 +91,7 @@ DataMap.prototype.createMap = function() {
   }
 
   this.colToPropCache = [];
-  this.propToColCache = new MultiMap();
+  this.propToColCache = new Map();
 
   let columns = this.instance.getSettings().columns;
 
