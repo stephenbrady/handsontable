@@ -61,13 +61,17 @@ var onBeforeKeyDown = function onBeforeKeyDown(event) {
     return;
   }
 
-  if (event.keyCode === 17 || event.keyCode === 224 || event.keyCode === 91 || event.keyCode === 93) {
+  const keyCode = event.keyCode;
+
+  if (keyCode === 17 || keyCode === 224 || keyCode === 91 || keyCode === 93) {
     // when CTRL or its equivalent is pressed and cell is edited, don't prepare selectable text in textarea
     stopImmediatePropagation(event);
     return;
   }
 
-  switch (event.keyCode) {
+  let doResize = false;
+
+  switch (keyCode) {
     case KEY_CODES.ARROW_RIGHT:
       if (that.isInFullEditMode()) {
         if ((!that.isWaiting() && !that.allowKeyEventPropagation) ||
@@ -75,6 +79,7 @@ var onBeforeKeyDown = function onBeforeKeyDown(event) {
           stopImmediatePropagation(event);
         }
       }
+      doResize = true;
       break;
     case KEY_CODES.ARROW_LEFT:
       if (that.isInFullEditMode()) {
@@ -83,6 +88,7 @@ var onBeforeKeyDown = function onBeforeKeyDown(event) {
           stopImmediatePropagation(event);
         }
       }
+      doResize = true;
       break;
     case KEY_CODES.ARROW_UP:
     case KEY_CODES.ARROW_DOWN:
@@ -92,6 +98,7 @@ var onBeforeKeyDown = function onBeforeKeyDown(event) {
           stopImmediatePropagation(event);
         }
       }
+      doResize = true;
       break;
 
     case KEY_CODES.ENTER:
@@ -133,8 +140,8 @@ var onBeforeKeyDown = function onBeforeKeyDown(event) {
       break;
   }
 
-  if ([KEY_CODES.ARROW_UP, KEY_CODES.ARROW_RIGHT, KEY_CODES.ARROW_DOWN, KEY_CODES.ARROW_LEFT].indexOf(event.keyCode) === -1) {
-    that.autoResize.resize(String.fromCharCode(event.keyCode));
+  if (doResize) {
+    that.autoResize.resize(String.fromCharCode(keyCode));
   }
 };
 
