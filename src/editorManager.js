@@ -10,6 +10,65 @@ export {EditorManager};
 // support for older versions of Handsontable
 Handsontable.EditorManager = EditorManager;
 
+function moveSelectionAfterEnter(selection, priv, shiftKey) {
+  selection.setSelectedHeaders(false, false, false);
+  var enterMoves = typeof priv.settings.enterMoves === 'function' ? priv.settings.enterMoves(event) : priv.settings.enterMoves;
+
+  if (shiftKey) {
+    // move selection up
+    selection.transformStart(-enterMoves.row, -enterMoves.col);
+
+  } else {
+    // move selection down (add a new row if needed)
+    selection.transformStart(enterMoves.row, enterMoves.col, true);
+  }
+}
+
+function moveSelectionUp(selection, shiftKey) {
+  if (shiftKey) {
+    if (selection.selectedHeader.cols) {
+      selection.setSelectedHeaders(selection.selectedHeader.rows, false, false);
+    }
+    selection.transformEnd(-1, 0);
+
+  } else {
+    selection.setSelectedHeaders(false, false, false);
+    selection.transformStart(-1, 0);
+  }
+}
+
+function moveSelectionDown(selection, shiftKey) {
+  if (shiftKey) {
+    // expanding selection down with shift
+    selection.transformEnd(1, 0);
+  } else {
+    selection.setSelectedHeaders(false, false, false);
+    selection.transformStart(1, 0);
+  }
+}
+
+function moveSelectionRight(selection, shiftKey) {
+  if (shiftKey) {
+    selection.transformEnd(0, 1);
+  } else {
+    selection.setSelectedHeaders(false, false, false);
+    selection.transformStart(0, 1);
+  }
+}
+
+function moveSelectionLeft(selection, shiftKey) {
+  if (shiftKey) {
+    if (selection.selectedHeader.rows) {
+      selection.setSelectedHeaders(false, selection.selectedHeader.cols, false);
+    }
+    selection.transformEnd(0, -1);
+
+  } else {
+    selection.setSelectedHeaders(false, false, false);
+    selection.transformStart(0, -1);
+  }
+}
+
 function EditorManager(instance, priv, selection) {
   var _this = this,
     destroyed = false,
@@ -17,65 +76,6 @@ function EditorManager(instance, priv, selection) {
     activeEditor;
 
   eventManager = eventManagerObject(instance);
-
-  function moveSelectionAfterEnter(shiftKey) {
-    selection.setSelectedHeaders(false, false, false);
-    var enterMoves = typeof priv.settings.enterMoves === 'function' ? priv.settings.enterMoves(event) : priv.settings.enterMoves;
-
-    if (shiftKey) {
-      // move selection up
-      selection.transformStart(-enterMoves.row, -enterMoves.col);
-
-    } else {
-      // move selection down (add a new row if needed)
-      selection.transformStart(enterMoves.row, enterMoves.col, true);
-    }
-  }
-
-  function moveSelectionUp(shiftKey) {
-    if (shiftKey) {
-      if (selection.selectedHeader.cols) {
-        selection.setSelectedHeaders(selection.selectedHeader.rows, false, false);
-      }
-      selection.transformEnd(-1, 0);
-
-    } else {
-      selection.setSelectedHeaders(false, false, false);
-      selection.transformStart(-1, 0);
-    }
-  }
-
-  function moveSelectionDown(shiftKey) {
-    if (shiftKey) {
-      // expanding selection down with shift
-      selection.transformEnd(1, 0);
-    } else {
-      selection.setSelectedHeaders(false, false, false);
-      selection.transformStart(1, 0);
-    }
-  }
-
-  function moveSelectionRight(shiftKey) {
-    if (shiftKey) {
-      selection.transformEnd(0, 1);
-    } else {
-      selection.setSelectedHeaders(false, false, false);
-      selection.transformStart(0, 1);
-    }
-  }
-
-  function moveSelectionLeft(shiftKey) {
-    if (shiftKey) {
-      if (selection.selectedHeader.rows) {
-        selection.setSelectedHeaders(false, selection.selectedHeader.cols, false);
-      }
-      selection.transformEnd(0, -1);
-
-    } else {
-      selection.setSelectedHeaders(false, false, false);
-      selection.transformStart(0, -1);
-    }
-  }
 
   function onKeyDown(event) {
     var ctrlDown, rangeModifier;
@@ -123,7 +123,7 @@ function EditorManager(instance, priv, selection) {
         if (_this.isEditorOpened() && !activeEditor.isWaiting()) {
           _this.closeEditorAndSaveChanges(ctrlDown);
         }
-        moveSelectionUp(event.shiftKey);
+        moveSelectionUp(selection, event.shiftKey);
 
         event.preventDefault();
         stopPropagation(event);
@@ -134,7 +134,7 @@ function EditorManager(instance, priv, selection) {
           _this.closeEditorAndSaveChanges(ctrlDown);
         }
 
-        moveSelectionDown(event.shiftKey);
+        moveSelectionDown(selection, event.shiftKey);
 
         event.preventDefault();
         stopPropagation(event);
@@ -145,7 +145,7 @@ function EditorManager(instance, priv, selection) {
           _this.closeEditorAndSaveChanges(ctrlDown);
         }
 
-        moveSelectionRight(event.shiftKey);
+        moveSelectionRight(selection, event.shiftKey);
 
         event.preventDefault();
         stopPropagation(event);
@@ -156,7 +156,7 @@ function EditorManager(instance, priv, selection) {
           _this.closeEditorAndSaveChanges(ctrlDown);
         }
 
-        moveSelectionLeft(event.shiftKey);
+        moveSelectionLeft(selection, event.shiftKey);
 
         event.preventDefault();
         stopPropagation(event);
@@ -201,7 +201,7 @@ function EditorManager(instance, priv, selection) {
           if (activeEditor && activeEditor.state !== Handsontable.EditorState.WAITING) {
             _this.closeEditorAndSaveChanges(ctrlDown);
           }
-          moveSelectionAfterEnter(event.shiftKey);
+          moveSelectionAfterEnter(selection, priv, event.shiftKey);
 
         } else {
           if (instance.getSettings().enterBeginsEditing) {
@@ -211,7 +211,7 @@ function EditorManager(instance, priv, selection) {
               activeEditor.enableFullEditMode();
             }
           } else {
-            moveSelectionAfterEnter(event.shiftKey);
+            moveSelectionAfterEnter(selection, priv, event.shiftKey);
           }
         }
         event.preventDefault(); // don't add newline to field
@@ -373,7 +373,7 @@ function EditorManager(instance, priv, selection) {
 
       // move the selection after opening the editor with ENTER key
       if (event && event.keyCode === KEY_CODES.ENTER) {
-        moveSelectionAfterEnter();
+        moveSelectionAfterEnter(selection, priv, false);
       }
     }
   };
